@@ -19,10 +19,11 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "hd44780u_driver.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "hd44780u_driver.h"
+#include "usart.h"
+#include "string.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -96,9 +97,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   hd44780u_init();
   hd44780u_display_on(HD44780U_CURSOR_ON | HD44780U_BLINK_ON);
-  hd44780u_cursor_shift(HD44780U_SHIFT_RIGHT);
-  hd44780u_cursor_shift(HD44780U_SHIFT_RIGHT);
-  hd44780u_cursor_shift(HD44780U_SHIFT_LEFT);
+  char* msg = "Hello, World!";
+  hd44780u_put_str(msg, strlen(msg), HD44780U_MIN_DDRAM_ADDR);
   /* USER CODE END 2 */
 
   /* Infinite loop */
