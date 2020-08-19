@@ -10,13 +10,12 @@
 
 #include "main.h"
 #include "stdint.h"
-#include "assert.h"
 #include "stddef.h"
 #include "hd44780u_driver_config.h"
 
 // HD44780U INSTRUCTION SET
 #define HD44780U_DISPLAY_CLEAR 		(uint8_t)0x1U
-#define HD47780U_RETURN_HOME 		(uint8_t)0x2U
+#define HD44780U_RETURN_HOME 		(uint8_t)0x2U
 #define HD44780U_ENTRY_MODE_SET 	(uint8_t)0x4U
 #define HD44780U_DISPLAY_CTRL 		(uint8_t)0x8U
 #define HD44780U_SHIFT_CTRL 		(uint8_t)0x10U
@@ -53,31 +52,43 @@
 #define HD44780U_4_BIT_INTERFACE 	(uint8_t)0x0U
 #define HD44780U_8_BIT_INTERFACE 	(uint8_t)0x10U
 
+#define HD44780U_MIN_CGRAM_ADDR		(uint8_t)0x0U
+#define HD44780U_MAX_CGRAM_ADDR		(uint8_t)0xFFU
 #define HD44780U_MIN_DDRAM_ADDR 	(uint8_t)0x0U
-#define HD44780U_MAX_DDRAM_ADDR 	(uint8_t)0x4AU
+#define HD44780U_MAX_DDRAM_ADDR 	(uint8_t)0x4FU
 
-#define HD44780U_PULSE_EN() {\
+#define HD44780U_PULSE_EN(){ \
 		HD44780U_PORT->BSRR = HD44780U_EN_PIN; \
 		LL_mDelay(1);                          \
 		HD44780U_PORT->BRR = HD44780U_EN_PIN;  \
 	}
 
 typedef enum {
-	HD44780U_OK
+	HD44780U_OK,
+	HD44780U_INVALID_ADDR,
+	HD44780U_INVALID_FLAGS
 } Hd44780u_status;
+
+typedef struct {
+	uint8_t cursor_pos;
+	uint8_t display_on_status;
+} hd44780u;
+
 
 void hd44780u_init(void);
 void hd44780u_write_nibble(uint8_t nibble);
 void hd44780u_write_command(uint8_t command);
 void hd44780u_write_data(uint8_t addr);
-void hd44780u_display_on(uint8_t flags);
-void hd44780u_display_off(void);
-void hd44780u_display_clear(void);
-void hd44780u_cursor_shift(uint8_t direction);
-void hd44780u_display_shift(uint8_t direction);
-void hd44780u_set_cgram_addr(uint8_t addr);
-void hd44780u_set_ddram_addr(uint8_t addr);
-void hd44780u_put_char(uint8_t ddram_addr, uint8_t c);
-void hd44780u_put_str(const char *str, size_t len, uint8_t start_addr);
-
+Hd44780u_status hd44780u_display_on(hd44780u* display, uint8_t flags);
+void hd44780u_display_off(hd44780u* display);
+void hd44780u_display_clear(hd44780u* display);
+void hd44780u_cursor_home(hd44780u* display);
+Hd44780u_status hd44780u_cursor_shift(hd44780u* display, uint8_t direction);
+Hd44780u_status hd44780u_display_shift(uint8_t direction);
+Hd44780u_status hd44780u_set_cgram_addr(uint8_t addr);
+Hd44780u_status hd44780u_set_ddram_addr(uint8_t addr);
+Hd44780u_status hd44780u_put_char(hd44780u* display, uint8_t c);
+Hd44780u_status hd44780u_put_char_at(hd44780u* display, uint8_t ddram_addr, uint8_t c);
+Hd44780u_status hd44780u_put_str(hd44780u* display, const char *str, size_t len);
+Hd44780u_status hd44780u_put_str_at(hd44780u* display, uint8_t start_addr, const char *str, size_t len);
 #endif /* INC_HD44780U_DRIVER_H_ */

@@ -95,10 +95,14 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+
+  hd44780u display = {0};
   hd44780u_init();
-  hd44780u_display_on(HD44780U_CURSOR_ON | HD44780U_BLINK_ON);
+  hd44780u_display_on(&display, HD44780U_CURSOR_OFF | HD44780U_BLINK_OFF);
   char* msg = "Hello, World!";
-  hd44780u_put_str(msg, strlen(msg), HD44780U_MIN_DDRAM_ADDR);
+  hd44780u_put_str(&display, msg, strlen(msg));
+  hd44780u_put_char(&display, '!');
+  hd44780u_put_char(&display, '!');
   /* USER CODE END 2 */
 
   /* Infinite loop */
