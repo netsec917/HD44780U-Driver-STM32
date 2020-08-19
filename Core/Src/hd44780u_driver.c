@@ -115,11 +115,11 @@ Hd44780u_status hd44780u_cursor_shift(hd44780u* display, uint8_t direction)
 		return HD44780U_INVALID_FLAGS;
 	}
 
-	if (direction == HD44780U_SHIFT_LEFT && display->cursor_pos == 0) {
+	if (direction == HD44780U_SHIFT_LEFT && display->cursor_pos == HD44780U_MIN_DDRAM_ADDR) {
 		return HD44780U_INVALID_ADDR;
 	}
 
-	if (direction == HD44780U_SHIFT_RIGHT && ++display->cursor_pos > HD44780U_MAX_DDRAM_ADDR) {
+	if (direction == HD44780U_SHIFT_RIGHT && display->cursor_pos == HD44780U_MAX_DDRAM_ADDR) {
 		return HD44780U_INVALID_ADDR;
 	}
 
@@ -161,9 +161,9 @@ Hd44780u_status hd44780u_put_char(hd44780u* display, uint8_t c)
 		return HD44780U_INVALID_ADDR;
 	}
 
-	++display->cursor_pos;
-
 	hd44780u_write_data(c);
+	display->cursor_pos = display->cursor_pos + 1;
+
 	return HD44780U_OK;
 }
 
@@ -173,10 +173,10 @@ Hd44780u_status hd44780u_put_char_at(hd44780u* display, uint8_t addr, uint8_t c)
 		return HD44780U_INVALID_ADDR;
 	}
 
-	display->cursor_pos = addr + 1;
-
 	hd44780u_set_ddram_addr(addr);
 	hd44780u_write_data(c);
+	display->cursor_pos = addr + 1;
+
 	return HD44780U_OK;
 }
 

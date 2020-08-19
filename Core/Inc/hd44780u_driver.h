@@ -33,10 +33,10 @@
 // HD44780U DISPLAY CONTROL FLAGS
 #define HD44780U_DISPLAY_ON 		(uint8_t)0x4U
 #define HD44780U_DISPLAY_OFF 		(uint8_t)0x0U
-#define HD44780U_CURSOR_ON 			(uint8_t)0x2U
+#define HD44780U_CURSOR_ON			(uint8_t)0x2U
 #define HD44780U_CURSOR_OFF 		(uint8_t)0x0U
-#define HD44780U_BLINK_ON 			(uint8_t)0x1U
-#define HD44780U_BLINK_OFF 			(uint8_t)0x0U
+#define HD44780U_BLINK_ON			(uint8_t)0x1U
+#define HD44780U_BLINK_OFF			(uint8_t)0x0U
 
 // HD44780U SHIFT CONTROL FLAGS
 #define HD44780U_CURSOR_SHIFT 		(uint8_t)0x0U
