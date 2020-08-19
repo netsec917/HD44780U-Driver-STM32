@@ -52,10 +52,17 @@
 #define HD44780U_4_BIT_INTERFACE 	(uint8_t)0x0U
 #define HD44780U_8_BIT_INTERFACE 	(uint8_t)0x10U
 
+// Address & display position constants
 #define HD44780U_MIN_CGRAM_ADDR		(uint8_t)0x0U
 #define HD44780U_MAX_CGRAM_ADDR		(uint8_t)0xFFU
 #define HD44780U_MIN_DDRAM_ADDR 	(uint8_t)0x0U
 #define HD44780U_MAX_DDRAM_ADDR 	(uint8_t)0x4FU
+#define HD44780U_ROW_0_ADDR			(uint8_t)0x80U
+#define HD44780U_ROW_1_ADDR			(uint8_t)0xC0U
+#define HD44780U_MIN_ROW_POS		(uint8_t)0x0U
+#define HD44780U_MIN_COL_POS		(uint8_t)0x0U
+#define HD44780U_MAX_ROW_POS		(uint8_t)0x1U
+#define HD44780U_MAX_COL_POS		(uint8_t)0xFU
 
 #define HD44780U_PULSE_EN(){ \
 		HD44780U_PORT->BSRR = HD44780U_EN_PIN; \
@@ -65,15 +72,20 @@
 
 typedef enum {
 	HD44780U_OK,
+	HD44780U_INVALID_FLAGS,
 	HD44780U_INVALID_ADDR,
-	HD44780U_INVALID_FLAGS
+	HD44780U_INVALID_DISPLAY_POS
 } Hd44780u_status;
 
 typedef struct {
-	uint8_t cursor_pos;
+	uint8_t row;
+	uint8_t col;
+} cursor;
+
+typedef struct {
+	cursor cursor_pos;
 	uint8_t display_on_status;
 } hd44780u;
-
 
 void hd44780u_init(void);
 void hd44780u_write_nibble(uint8_t nibble);
@@ -87,8 +99,7 @@ Hd44780u_status hd44780u_cursor_shift(hd44780u* display, uint8_t direction);
 Hd44780u_status hd44780u_display_shift(uint8_t direction);
 Hd44780u_status hd44780u_set_cgram_addr(uint8_t addr);
 Hd44780u_status hd44780u_set_ddram_addr(uint8_t addr);
+Hd44780u_status hd44780u_set_cursor(hd44780u* display, uint8_t row, uint8_t col);
 Hd44780u_status hd44780u_put_char(hd44780u* display, uint8_t c);
-Hd44780u_status hd44780u_put_char_at(hd44780u* display, uint8_t ddram_addr, uint8_t c);
 Hd44780u_status hd44780u_put_str(hd44780u* display, const char *str, size_t len);
-Hd44780u_status hd44780u_put_str_at(hd44780u* display, uint8_t start_addr, const char *str, size_t len);
 #endif /* INC_HD44780U_DRIVER_H_ */

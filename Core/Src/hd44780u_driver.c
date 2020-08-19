@@ -12,9 +12,9 @@
 void hd44780u_init(void)
 {
 	// 8 Bit-mode function set instructions
-	LL_mDelay(30);
+	LL_mDelay(110);
 	hd44780u_write_nibble(0x3U);
-	LL_mDelay(5);
+	LL_mDelay(4);
 	hd44780u_write_nibble(0x3U);
 	LL_mDelay(1);
 	hd44780u_write_nibble(0x3U);
@@ -86,6 +86,8 @@ Hd44780u_status hd44780u_display_on(hd44780u* display, uint8_t flags)
 		return HD44780U_INVALID_FLAGS;
 	}
 
+	display->cursor_pos.col = 0;
+	display->cursor_pos.row = 0;
 	display->display_on_status = HD44780U_DISPLAY_CTRL | HD44780U_DISPLAY_ON | flags;
 	hd44780u_write_command(display->display_on_status);
 	return HD44780U_OK;
@@ -99,13 +101,15 @@ void hd44780u_display_off(hd44780u* display)
 
 void hd44780u_display_clear(hd44780u* display)
 {
-	display->cursor_pos = 0;
+	display->cursor_pos.col = 0;
+	display->cursor_pos.row = 0;
 	hd44780u_write_command(HD44780U_DISPLAY_CLEAR);
 }
 
 void hd44780u_cursor_home(hd44780u* display)
 {
-	display->cursor_pos = 0;
+	display->cursor_pos.col = 0;
+	display->cursor_pos.row = 0;
 	hd44780u_write_command(HD44780U_RETURN_HOME);
 }
 
@@ -115,12 +119,9 @@ Hd44780u_status hd44780u_cursor_shift(hd44780u* display, uint8_t direction)
 		return HD44780U_INVALID_FLAGS;
 	}
 
-	if (direction == HD44780U_SHIFT_LEFT && display->cursor_pos == HD44780U_MIN_DDRAM_ADDR) {
-		return HD44780U_INVALID_ADDR;
-	}
-
-	if (direction == HD44780U_SHIFT_RIGHT && display->cursor_pos == HD44780U_MAX_DDRAM_ADDR) {
-		return HD44780U_INVALID_ADDR;
+	if ((direction == HD44780U_SHIFT_LEFT && display->cursor_pos.col == HD44780U_MIN_COL_POS)
+	|| (direction == HD44780U_SHIFT_RIGHT && display->cursor_pos.col == HD44780U_MAX_COL_POS)) {
+		return 	HD44780U_INVALID_DISPLAY_POS;
 	}
 
 	hd44780u_write_command(HD44780U_SHIFT_CTRL | HD44780U_CURSOR_SHIFT | direction);
@@ -155,51 +156,39 @@ Hd44780u_status hd44780u_set_ddram_addr(uint8_t addr)
 	return HD44780U_OK;
 }
 
-Hd44780u_status hd44780u_put_char(hd44780u* display, uint8_t c)
+Hd44780u_status hd44780u_set_cursor(hd44780u* display, uint8_t row, uint8_t col)
 {
-	if (display->cursor_pos > HD44780U_MAX_DDRAM_ADDR) {
-		return HD44780U_INVALID_ADDR;
+	if (row > HD44780U_MAX_ROW_POS || col > HD44780U_MAX_COL_POS) {
+		return HD44780U_INVALID_DISPLAY_POS;
 	}
 
-	hd44780u_write_data(c);
-	display->cursor_pos = display->cursor_pos + 1;
+	display->cursor_pos.row = row;
+	display->cursor_pos.col = col;
 
+	if (display->cursor_pos.row == HD44780U_MIN_ROW_POS) {
+		hd44780u_write_command(HD44780U_ROW_0_ADDR + display->cursor_pos.col);
+	} else {
+		hd44780u_write_command(HD44780U_ROW_1_ADDR + display->cursor_pos.col);
+	}
 	return HD44780U_OK;
 }
 
-Hd44780u_status hd44780u_put_char_at(hd44780u* display, uint8_t addr, uint8_t c)
+Hd44780u_status hd44780u_put_char(hd44780u* display, uint8_t c)
 {
-	if (addr > HD44780U_MAX_DDRAM_ADDR) {
-		return HD44780U_INVALID_ADDR;
+	if (display->cursor_pos.col > HD44780U_MAX_COL_POS) {
+		return HD44780U_INVALID_DISPLAY_POS;
 	}
-
-	hd44780u_set_ddram_addr(addr);
 	hd44780u_write_data(c);
-	display->cursor_pos = addr + 1;
-
+	++display->cursor_pos.col;
 	return HD44780U_OK;
 }
 
 Hd44780u_status hd44780u_put_str(hd44780u* display, const char* str, size_t len)
 {
-	if (display->cursor_pos + len > HD44780U_MAX_DDRAM_ADDR) {
-		return HD44780U_INVALID_ADDR;
+	if (display->cursor_pos.col + len > HD44780U_MAX_COL_POS) {
+		return HD44780U_INVALID_DISPLAY_POS;
 	}
 
-	while (*str != '\0') {
-		hd44780u_put_char(display, *str);
-		++str;
-	}
-	return HD44780U_OK;
-}
-
-Hd44780u_status hd44780u_put_str_at(hd44780u* display, uint8_t start_addr, const char* str, size_t len)
-{
-	if (start_addr + len > HD44780U_MAX_DDRAM_ADDR) {
-		return HD44780U_INVALID_ADDR;
-	}
-
-	hd44780u_set_ddram_addr(start_addr);
 	while (*str != '\0') {
 		hd44780u_put_char(display, *str);
 		++str;
