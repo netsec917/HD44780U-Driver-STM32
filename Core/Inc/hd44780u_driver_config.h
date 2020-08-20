@@ -10,6 +10,7 @@
 
 #include "main.h"
 
+// Port & Pin constants for interface
 
 #define HD44780U_PORT       GPIOB
 #define HD44780U_RS_PIN     LL_GPIO_PIN_5

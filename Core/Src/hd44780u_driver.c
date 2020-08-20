@@ -5,7 +5,6 @@
  *      Author: Tom
  */
 
-
 #include "hd44780u_driver.h"
 
 
@@ -32,7 +31,7 @@ void hd44780u_init(void)
 
 	hd44780u_write_command(HD44780U_DISPLAY_CLEAR);
 	LL_mDelay(3);
-
+	// Set address counter to increment after ddram write
 	hd44780u_write_command(HD44780U_ENTRY_MODE_SET | HD44780U_ENTRY_MODE_INC);
 	LL_mDelay(1);
 }
@@ -82,10 +81,10 @@ void hd44780u_write_data(uint8_t addr)
 
 Hd44780u_status hd44780u_display_on(hd44780u* display, uint8_t flags)
 {
+	// Max flag value comes from ORing the two
 	if (flags > (HD44780U_CURSOR_ON | HD44780U_BLINK_ON)) {
 		return HD44780U_INVALID_FLAGS;
 	}
-
 	display->cursor_pos.col = 0;
 	display->cursor_pos.row = 0;
 	display->display_on_status = HD44780U_DISPLAY_CTRL | HD44780U_DISPLAY_ON | flags;
@@ -106,53 +105,32 @@ void hd44780u_display_clear(hd44780u* display)
 	hd44780u_write_command(HD44780U_DISPLAY_CLEAR);
 }
 
-void hd44780u_cursor_home(hd44780u* display)
+void hd44780u_display_home(hd44780u* display)
 {
 	display->cursor_pos.col = 0;
 	display->cursor_pos.row = 0;
 	hd44780u_write_command(HD44780U_RETURN_HOME);
 }
 
-Hd44780u_status hd44780u_cursor_shift(hd44780u* display, uint8_t direction)
+
+Hd44780u_status hd44780u_shift_cursor(hd44780u* display, uint8_t direction)
 {
-	if (direction != HD44780U_SHIFT_LEFT || direction != HD44780U_SHIFT_RIGHT) {
+	if (direction != HD44780U_SHIFT_LEFT && direction != HD44780U_SHIFT_RIGHT) {
 		return HD44780U_INVALID_FLAGS;
 	}
 
 	if ((direction == HD44780U_SHIFT_LEFT && display->cursor_pos.col == HD44780U_MIN_COL_POS)
 	|| (direction == HD44780U_SHIFT_RIGHT && display->cursor_pos.col == HD44780U_MAX_COL_POS)) {
-		return 	HD44780U_INVALID_DISPLAY_POS;
+		return HD44780U_INVALID_DISPLAY_POS;
+	}
+
+	if (direction == HD44780U_SHIFT_LEFT) {
+		--display->cursor_pos.col;
+	} else {
+		++display->cursor_pos.col;
 	}
 
 	hd44780u_write_command(HD44780U_SHIFT_CTRL | HD44780U_CURSOR_SHIFT | direction);
-	return HD44780U_OK;
-}
-
-Hd44780u_status hd44780u_display_shift(uint8_t direction)
-{
-	if (direction != HD44780U_SHIFT_LEFT || direction != HD44780U_SHIFT_RIGHT) {
-		return HD44780U_INVALID_FLAGS;
-	} 
-
-	// TODO:: handle display shift wrap round & errors
-	hd44780u_write_command(HD44780U_SHIFT_CTRL | HD44780U_DISPLAY_SHIFT | direction);
-	return HD44780U_OK;
-}
-
-Hd44780u_status hd44780u_set_cgram_addr(uint8_t addr)
-{
-	// Since Max CGRAM addr is 0xFF, we can rely on unsigned overflow wrap round here
-	hd44780u_write_command(HD44780U_SET_CGRAM_ADDR | addr);
-	return HD44780U_OK;
-}
-
-Hd44780u_status hd44780u_set_ddram_addr(uint8_t addr)
-{
-	if (addr > HD44780U_MAX_DDRAM_ADDR) {
-		return HD44780U_INVALID_ADDR;
-	}
-
-	hd44780u_write_command(HD44780U_SET_DDRAM_ADDR | addr);
 	return HD44780U_OK;
 }
 
@@ -166,9 +144,9 @@ Hd44780u_status hd44780u_set_cursor(hd44780u* display, uint8_t row, uint8_t col)
 	display->cursor_pos.col = col;
 
 	if (display->cursor_pos.row == HD44780U_MIN_ROW_POS) {
-		hd44780u_write_command(HD44780U_ROW_0_ADDR + display->cursor_pos.col);
+		hd44780u_write_command(HD44780U_DDRAM_ROW_0 + display->cursor_pos.col);
 	} else {
-		hd44780u_write_command(HD44780U_ROW_1_ADDR + display->cursor_pos.col);
+		hd44780u_write_command(HD44780U_DDRAM_ROW_1 + display->cursor_pos.col);
 	}
 	return HD44780U_OK;
 }
@@ -178,14 +156,17 @@ Hd44780u_status hd44780u_put_char(hd44780u* display, uint8_t c)
 	if (display->cursor_pos.col > HD44780U_MAX_COL_POS) {
 		return HD44780U_INVALID_DISPLAY_POS;
 	}
+	
 	hd44780u_write_data(c);
 	++display->cursor_pos.col;
 	return HD44780U_OK;
 }
 
-Hd44780u_status hd44780u_put_str(hd44780u* display, const char* str, size_t len)
+
+Hd44780u_status hd44780u_put_str(hd44780u* display, char* str, size_t len)
 {
-	if (display->cursor_pos.col + len > HD44780U_MAX_COL_POS) {
+	// + 1 to account for 0-based ddram addressing
+	if (display->cursor_pos.col + len > HD44780U_MAX_COL_POS + 1) {
 		return HD44780U_INVALID_DISPLAY_POS;
 	}
 
