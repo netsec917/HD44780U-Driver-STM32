@@ -60,8 +60,8 @@
 #define HD44780U_MAX_DDRAM_ADDR (uint8_t)0x67U
 
 // Display position constants
-#define HD44780U_N_DISPLAY_ROWS (uint8_t)0x1U
-#define HD44780U_M_DISPLAY_COLS (uint8_t)0xFU
+#define HD44780U_MAX_ROW_POS (uint8_t)0x1U
+#define HD44780U_MAX_COL_POS (uint8_t)0xFU
 
 #define HD44780U_PULSE_EN(){\
 		HD44780U_PORT->BSRR = HD44780U_EN_PIN; \
@@ -84,11 +84,10 @@ typedef struct {
 typedef struct {
 	hd44780u_cursor cursor;
 	uint8_t display_status;
-	bool line_wrap;
 } hd44780u;
 
 // Function prototypes
-void hd44780u_init(hd44780u* display);
+void hd44780u_init(void);
 void hd44780u_write_nibble(uint8_t nibble);
 void hd44780u_write_command(uint8_t command);
 void hd44780u_write_data(uint8_t addr);
@@ -100,8 +99,6 @@ void hd44780u_cursor_on(hd44780u* display);
 void hd44780u_cursor_off(hd44780u* display);
 void hd44780u_blink_on(hd44780u* display);
 void hd44780u_blink_off(hd44780u* display);
-void hd44780u_linewrap_on(hd44780u* display);
-void hd44780u_linewrap_off(hd44780u* display);
 Hd44780u_status hd44780u_shift_cursor(hd44780u* display, uint8_t direction);
 Hd44780u_status hd44780u_set_cursor(hd44780u* display, uint8_t row, uint8_t col);
 Hd44780u_status hd44780u_put_char(hd44780u* display, uint8_t c);

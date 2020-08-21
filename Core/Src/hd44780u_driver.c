@@ -8,7 +8,7 @@
 #include "hd44780u_driver.h"
 
 
-void hd44780u_init(hd44780u* display)
+void hd44780u_init(void)
 {
 	// 8 Bit-mode function set instructions
 	LL_mDelay(110);
@@ -31,13 +31,6 @@ void hd44780u_init(hd44780u* display)
 	// Set address counter to increment after ddram write
 	hd44780u_write_command(HD44780U_ENTRY_MODE_SET | HD44780U_ENTRY_MODE_INC);
 	LL_mDelay(1);
-
-	// Turn on display, cursor, blinking & line wrap off by default
-	display->cursor.col = 0;
-	display->cursor.row = 0;
-	display->line_wrap = false;
-	display->display_status = HD44780U_DISPLAY_ON;
-	hd44780u_write_command(HD44780U_DISPLAY_CTRL | display->display_status);
 }
 
 
@@ -85,7 +78,6 @@ void hd44780u_write_data(uint8_t addr)
 
 Hd44780u_status hd44780u_display_on(hd44780u* display, uint8_t cursor_flags)
 {
-	// Max flag value comes from ORing the two
 	if (cursor_flags > (HD44780U_CURSOR_ON | HD44780U_BLINK_ON)) {
 		return HD44780U_INVALID_FLAGS;
 	}
@@ -148,7 +140,7 @@ Hd44780u_status hd44780u_shift_cursor(hd44780u* display, uint8_t direction)
 	}
 
 	if ((direction == HD44780U_SHIFT_LEFT && display->cursor.col == 0U)
-	|| (direction == HD44780U_SHIFT_RIGHT && display->cursor.col == HD44780U_M_DISPLAY_COLS)) {
+	|| (direction == HD44780U_SHIFT_RIGHT && display->cursor.col == HD44780U_MAX_COL_POS)) {
 		return HD44780U_INVALID_DISPLAY_POS;
 	}
 
@@ -164,7 +156,7 @@ Hd44780u_status hd44780u_shift_cursor(hd44780u* display, uint8_t direction)
 
 Hd44780u_status hd44780u_set_cursor(hd44780u* display, uint8_t row, uint8_t col)
 {
-	if (row > HD44780U_N_DISPLAY_ROWS || col > HD44780U_M_DISPLAY_COLS) {
+	if (row > HD44780U_MAX_ROW_POS || col > HD44780U_MAX_COL_POS) {
 		return HD44780U_INVALID_DISPLAY_POS;
 	}
 
@@ -172,7 +164,7 @@ Hd44780u_status hd44780u_set_cursor(hd44780u* display, uint8_t row, uint8_t col)
 	display->cursor.col = col;
 
 	if (display->cursor.row == 0) {
-		hd44780u_write_command(HD44780U_SET_DDRAM_ADDR | (display->cursor.col));
+		hd44780u_write_command(HD44780U_SET_DDRAM_ADDR | display->cursor.col);
 	} else {
 		//0x40U == DDRAM row 1 offset
 		hd44780u_write_command(HD44780U_SET_DDRAM_ADDR | (display->cursor.col + 0x40U));
@@ -182,7 +174,7 @@ Hd44780u_status hd44780u_set_cursor(hd44780u* display, uint8_t row, uint8_t col)
 
 Hd44780u_status hd44780u_put_char(hd44780u* display, uint8_t c)
 {
-	if (display->cursor.col > HD44780U_M_DISPLAY_COLS) {
+	if (display->cursor.col > HD44780U_MAX_COL_POS) {
 		return HD44780U_INVALID_DISPLAY_POS;
 	}
 	
@@ -191,11 +183,10 @@ Hd44780u_status hd44780u_put_char(hd44780u* display, uint8_t c)
 	return HD44780U_OK;
 }
 
-
 Hd44780u_status hd44780u_put_str(hd44780u* display, char* str, size_t len)
 {
 	// + 1 to account for 0-based ddram addressing
-	if (display->cursor.col + len > HD44780U_M_DISPLAY_COLS + 1U) {
+	if (display->cursor.col + len > HD44780U_MAX_COL_POS + 1U) {
 		return HD44780U_INVALID_DISPLAY_POS;
 	}
 
