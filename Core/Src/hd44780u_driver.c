@@ -147,7 +147,7 @@ Hd44780u_status hd44780u_shift_cursor(hd44780u* display, uint8_t direction)
 		return HD44780U_INVALID_FLAGS;
 	}
 
-	if ((direction == HD44780U_SHIFT_LEFT && display->cursor.col == HD44780U_M_DISPLAY_COLS)
+	if ((direction == HD44780U_SHIFT_LEFT && display->cursor.col == 0U)
 	|| (direction == HD44780U_SHIFT_RIGHT && display->cursor.col == HD44780U_M_DISPLAY_COLS)) {
 		return HD44780U_INVALID_DISPLAY_POS;
 	}
@@ -195,7 +195,7 @@ Hd44780u_status hd44780u_put_char(hd44780u* display, uint8_t c)
 Hd44780u_status hd44780u_put_str(hd44780u* display, char* str, size_t len)
 {
 	// + 1 to account for 0-based ddram addressing
-	if (display->cursor.col + len > HD44780U_M_DISPLAY_COLS + 1) {
+	if (display->cursor.col + len > HD44780U_M_DISPLAY_COLS + 1U) {
 		return HD44780U_INVALID_DISPLAY_POS;
 	}
 
