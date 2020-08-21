@@ -58,14 +58,10 @@
 #define HD44780U_MAX_CGRAM_ADDR (uint8_t)0xFFU
 #define HD44780U_MIN_DDRAM_ADDR (uint8_t)0x0U
 #define HD44780U_MAX_DDRAM_ADDR (uint8_t)0x67U
-#define HD44780U_DDRAM_ROW_0 (uint8_t)0x80U
-#define HD44780U_DDRAM_ROW_1 (uint8_t)0xC0U
 
 // Display position constants
-#define HD44780U_MIN_ROW_POS (uint8_t)0x0U
-#define HD44780U_MIN_COL_POS (uint8_t)0x0U
-#define HD44780U_MAX_ROW_POS (uint8_t)0x1U
-#define HD44780U_MAX_COL_POS (uint8_t)0xFU
+#define HD44780U_N_DISPLAY_ROWS (uint8_t)0x1U
+#define HD44780U_M_DISPLAY_COLS (uint8_t)0xFU
 
 #define HD44780U_PULSE_EN(){\
 		HD44780U_PORT->BSRR = HD44780U_EN_PIN; \
@@ -87,9 +83,8 @@ typedef struct {
 
 typedef struct {
 	hd44780u_cursor cursor;
-	uint8_t display_on_status;
+	uint8_t display_status;
 	bool line_wrap;
-	uint8_t top_left;
 } hd44780u;
 
 // Function prototypes
