@@ -98,12 +98,10 @@ int main(void)
 
   hd44780u display = {0};
   char* msg = "Hello, World!";
-
-  hd44780u_init();
-  hd44780u_display_on(&display, HD44780U_CURSOR_OFF | HD44780U_BLINK_OFF);
+  hd44780u_init(&display);
   hd44780u_put_str(&display, msg, strlen(msg));
   hd44780u_set_cursor(&display, 1, 7);
-  hd44780u_put_uint(&display, 256);
+  hd44780u_put_str(&display, ":)", strlen(":)"));
   /* USER CODE END 2 */
 
   /* Infinite loop */

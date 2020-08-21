@@ -11,6 +11,7 @@
 #include "main.h"
 #include "stdint.h"
 #include "stddef.h"
+#include "stdbool.h"
 #include "hd44780u_driver_config.h"
 
 // HD44780U INSTRUCTION SET
@@ -82,24 +83,32 @@ typedef enum {
 typedef struct {
 	uint8_t row;
 	uint8_t col;
-} cursor;
+} hd44780u_cursor;
 
 typedef struct {
-	cursor cursor_pos;
+	hd44780u_cursor cursor;
 	uint8_t display_on_status;
+	bool line_wrap;
+	uint8_t top_left;
 } hd44780u;
 
 // Function prototypes
-void hd44780u_init(void);
+void hd44780u_init(hd44780u* display);
 void hd44780u_write_nibble(uint8_t nibble);
 void hd44780u_write_command(uint8_t command);
 void hd44780u_write_data(uint8_t addr);
-Hd44780u_status hd44780u_display_on(hd44780u *display, uint8_t flags);
-void hd44780u_display_off(hd44780u *display);
-void hd44780u_display_clear(hd44780u *display);
-void hd44780u_display_home(hd44780u *display);
-Hd44780u_status hd44780u_shift_cursor(hd44780u *display, uint8_t direction);
-Hd44780u_status hd44780u_set_cursor(hd44780u *display, uint8_t row, uint8_t col);
-Hd44780u_status hd44780u_put_char(hd44780u *display, uint8_t c);
-Hd44780u_status hd44780u_put_str(hd44780u *display, char *str, size_t len);
+Hd44780u_status hd44780u_display_on(hd44780u* display, uint8_t cursor_flags);
+void hd44780u_display_off(hd44780u* display);
+void hd44780u_display_clear(hd44780u* display);
+void hd44780u_display_home(hd44780u* display);
+void hd44780u_cursor_on(hd44780u* display);
+void hd44780u_cursor_off(hd44780u* display);
+void hd44780u_blink_on(hd44780u* display);
+void hd44780u_blink_off(hd44780u* display);
+void hd44780u_linewrap_on(hd44780u* display);
+void hd44780u_linewrap_off(hd44780u* display);
+Hd44780u_status hd44780u_shift_cursor(hd44780u* display, uint8_t direction);
+Hd44780u_status hd44780u_set_cursor(hd44780u* display, uint8_t row, uint8_t col);
+Hd44780u_status hd44780u_put_char(hd44780u* display, uint8_t c);
+Hd44780u_status hd44780u_put_str(hd44780u* display, char *str, size_t len);
 #endif /* INC_HD44780U_DRIVER_H_ */
