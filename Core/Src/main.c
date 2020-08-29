@@ -43,7 +43,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-
+hd44780u display = {0};
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -51,12 +51,23 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
-
+static void hd44780u_config(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+static void hd44780u_config(void)
+{
+	display.port = GPIOB;
+	display.en_pin = LL_GPIO_PIN_4;
+	display.rs_pin = LL_GPIO_PIN_5;
+	display.d4_pin = LL_GPIO_PIN_0;
+	display.d5_pin = LL_GPIO_PIN_7;
+	display.d6_pin = LL_GPIO_PIN_6;
+	display.d7_pin =  LL_GPIO_PIN_1;
+	hd44780u_init(&display);
+	hd44780u_display_on(&display, HD44780U_CURSOR_OFF | HD44780U_BLINK_OFF);
+}
 /* USER CODE END 0 */
 
 /**
@@ -95,11 +106,8 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
-
-  hd44780u display = {0};
+  hd44780u_config();
   char* msg = "Hello, World!";
-  hd44780u_init();
-  hd44780u_display_on(&display, HD44780U_CURSOR_OFF | HD44780U_BLINK_OFF);
   hd44780u_put_str(&display, msg, strlen(msg));
   hd44780u_set_cursor(&display, 1, 6);
   hd44780u_put_str(&display, ":)", strlen(":)"));

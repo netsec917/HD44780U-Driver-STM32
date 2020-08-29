@@ -63,11 +63,6 @@
 #define HD44780U_MAX_ROW_POS (uint8_t)0x1U
 #define HD44780U_MAX_COL_POS (uint8_t)0xFU
 
-#define HD44780U_PULSE_EN(){\
-		HD44780U_PORT->BSRR = HD44780U_EN_PIN; \
-		LL_mDelay(1);                          \
-		HD44780U_PORT->BRR = HD44780U_EN_PIN;  \
-	}
 
 // Typedefs
 typedef enum {
@@ -82,15 +77,22 @@ typedef struct {
 } hd44780u_cursor;
 
 typedef struct {
+	GPIO_TypeDef* port;
+	uint32_t en_pin;
+	uint32_t rs_pin;
+	uint32_t d4_pin;
+	uint32_t d5_pin;
+	uint32_t d6_pin;
+	uint32_t d7_pin;
 	hd44780u_cursor cursor;
 	uint8_t display_status;
 } hd44780u;
 
 // Function prototypes
-void hd44780u_init(void);
-void hd44780u_write_nibble(uint8_t nibble);
-void hd44780u_write_command(uint8_t command);
-void hd44780u_write_data(uint8_t addr);
+void hd44780u_init(hd44780u* display);
+void hd44780u_write_nibble(hd44780u* display, uint8_t nibble);
+void hd44780u_write_command(hd44780u* display, uint8_t command);
+void hd44780u_write_data(hd44780u* display, uint8_t addr);
 Hd44780u_status hd44780u_display_on(hd44780u* display, uint8_t cursor_flags);
 void hd44780u_display_off(hd44780u* display);
 void hd44780u_display_clear(hd44780u* display);
