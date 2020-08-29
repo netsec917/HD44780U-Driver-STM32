@@ -12,7 +12,6 @@
 #include "stdint.h"
 #include "stddef.h"
 #include "stdbool.h"
-#include "hd44780u_driver_config.h"
 
 // HD44780U INSTRUCTION SET
 #define HD44780U_DISPLAY_CLEAR (uint8_t)0x1U

@@ -45,24 +45,24 @@ void hd44780u_init(hd44780u* display)
 void hd44780u_write_nibble(hd44780u* display, uint8_t nibble)
 {
 	if (nibble & 0x1U) {
-		display->port->BSRR = (uint32_t)display->d4_pin;
+		display->port->BSRR = display->d4_pin;
 	} else {
-		display->port->BRR = (uint32_t)display->d4_pin;
+		display->port->BRR = display->d4_pin;
 	}
 	if (nibble & 0x2U) {
-		display->port->BSRR = (uint32_t)display->d5_pin;
+		display->port->BSRR = display->d5_pin;
 	} else {
-		display->port->BRR = (uint32_t)display->d5_pin;
+		display->port->BRR = display->d5_pin;
 	}
 	if (nibble & 0x4U) {
-		display->port->BSRR = (uint32_t)display->d6_pin;
+		display->port->BSRR = display->d6_pin;
 	} else {
-		display->port->BRR = (uint32_t)display->d6_pin;
+		display->port->BRR = display->d6_pin;
 	}
 	if (nibble & 0x8U) {
-		display->port->BSRR = (uint32_t)display->d7_pin;
+		display->port->BSRR = display->d7_pin;
 	} else {
-		display->port->BRR = (uint32_t)display->d7_pin;
+		display->port->BRR = display->d7_pin;
 	}
 }
 

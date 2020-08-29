@@ -58,15 +58,15 @@ static void hd44780u_config(void);
 /* USER CODE BEGIN 0 */
 static void hd44780u_config(void)
 {
-	display.port = GPIOB;
-	display.en_pin = LL_GPIO_PIN_4;
-	display.rs_pin = LL_GPIO_PIN_5;
-	display.d4_pin = LL_GPIO_PIN_0;
-	display.d5_pin = LL_GPIO_PIN_7;
-	display.d6_pin = LL_GPIO_PIN_6;
-	display.d7_pin =  LL_GPIO_PIN_1;
-	hd44780u_init(&display);
-	hd44780u_display_on(&display, HD44780U_CURSOR_OFF | HD44780U_BLINK_OFF);
+  display.port = GPIOB;
+  display.en_pin = LL_GPIO_PIN_4;
+  display.rs_pin = LL_GPIO_PIN_5;
+  display.d4_pin = LL_GPIO_PIN_0;
+  display.d5_pin = LL_GPIO_PIN_7;
+  display.d6_pin = LL_GPIO_PIN_6;
+  display.d7_pin = LL_GPIO_PIN_1;
+  hd44780u_init(&display);
+  hd44780u_display_on(&display, HD44780U_CURSOR_OFF | HD44780U_BLINK_OFF);
 }
 /* USER CODE END 0 */
 
@@ -107,7 +107,7 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
   hd44780u_config();
-  char* msg = "Hello, World!";
+  char *msg = "Hello, World!";
   hd44780u_put_str(&display, msg, strlen(msg));
   hd44780u_set_cursor(&display, 1, 6);
   hd44780u_put_str(&display, ":)", strlen(":)"));
@@ -133,26 +133,24 @@ int main(void)
 void SystemClock_Config(void)
 {
   LL_FLASH_SetLatency(LL_FLASH_LATENCY_0);
-  while(LL_FLASH_GetLatency()!= LL_FLASH_LATENCY_0)
+  while (LL_FLASH_GetLatency() != LL_FLASH_LATENCY_0)
   {
   }
   LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE1);
   LL_RCC_MSI_Enable();
 
-   /* Wait till MSI is ready */
-  while(LL_RCC_MSI_IsReady() != 1)
+  /* Wait till MSI is ready */
+  while (LL_RCC_MSI_IsReady() != 1)
   {
-
   }
   LL_RCC_MSI_EnableRangeSelection();
   LL_RCC_MSI_SetRange(LL_RCC_MSIRANGE_6);
   LL_RCC_MSI_SetCalibTrimming(0);
   LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_MSI);
 
-   /* Wait till System clock is ready */
-  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_MSI)
+  /* Wait till System clock is ready */
+  while (LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_MSI)
   {
-
   }
   LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
   LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
@@ -188,7 +186,7 @@ static void MX_USART2_UART_Init(void)
   PA2   ------> USART2_TX
   PA3   ------> USART2_RX
   */
-  GPIO_InitStruct.Pin = LL_GPIO_PIN_2|LL_GPIO_PIN_3;
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_2 | LL_GPIO_PIN_3;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_ALTERNATE;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
@@ -197,7 +195,7 @@ static void MX_USART2_UART_Init(void)
   LL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /* USART2 interrupt Init */
-  NVIC_SetPriority(USART2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),0, 0));
+  NVIC_SetPriority(USART2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 0, 0));
   NVIC_EnableIRQ(USART2_IRQn);
 
   /* USER CODE BEGIN USART2_Init 1 */
@@ -216,7 +214,6 @@ static void MX_USART2_UART_Init(void)
   /* USER CODE BEGIN USART2_Init 2 */
 
   /* USER CODE END USART2_Init 2 */
-
 }
 
 /**
@@ -233,18 +230,15 @@ static void MX_GPIO_Init(void)
   LL_AHB2_GRP1_EnableClock(LL_AHB2_GRP1_PERIPH_GPIOB);
 
   /**/
-  LL_GPIO_ResetOutputPin(GPIOB, D4_Pin|D7_Pin|EN_Pin|RS_Pin
-                          |D6_Pin|D5_Pin);
+  LL_GPIO_ResetOutputPin(GPIOB, D4_Pin | D7_Pin | EN_Pin | RS_Pin | D6_Pin | D5_Pin);
 
   /**/
-  GPIO_InitStruct.Pin = D4_Pin|D7_Pin|EN_Pin|RS_Pin
-                          |D6_Pin|D5_Pin;
+  GPIO_InitStruct.Pin = D4_Pin | D7_Pin | EN_Pin | RS_Pin | D6_Pin | D5_Pin;
   GPIO_InitStruct.Mode = LL_GPIO_MODE_OUTPUT;
   GPIO_InitStruct.Speed = LL_GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.OutputType = LL_GPIO_OUTPUT_PUSHPULL;
   GPIO_InitStruct.Pull = LL_GPIO_PULL_DOWN;
   LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
 }
 
 /* USER CODE BEGIN 4 */
@@ -263,7 +257,7 @@ void Error_Handler(void)
   /* USER CODE END Error_Handler_Debug */
 }
 
-#ifdef  USE_FULL_ASSERT
+#ifdef USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
